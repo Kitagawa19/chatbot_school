@@ -1,22 +1,23 @@
 'use client';
 import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import axios from 'axios';
-import { AuthState, User, Role, LoginResponse } from '@/types/authinfo';
+import { AuthState, User, LoginResponse } from '@/types/authinfo';
 import { setAuthToken, getAuthToken, removeAuthToken } from '@/utils/cookie';
+import { useRouter } from 'next/navigation';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 const initialState: AuthState = {
-  user: null,
-  isAuthenticated: false,
-  error: null,
+    user: null,
+    isAuthenticated: false,
+    error: null,
 };
 
 type AuthAction =
-  | { type: 'LOGIN_SUCCESS'; payload: LoginResponse }
-  | { type: 'LOGIN_FAILURE'; payload: string }
-  | { type: 'LOGOUT' }
-  | { type: 'SET_USER'; payload: { user: User; role: Role } };
+  | { type: 'LOGIN_SUCCESS'; payload: LoginResponse } //ログイン成功時のアクション
+  | { type: 'LOGIN_FAILURE'; payload: string } //ログイン失敗時のアクション
+  | { type: 'LOGOUT' } //ログアウト時のアクション
+  | { type: 'SET_USER'; payload: { user: User } }; //ユーザー情報をセットするアクション
 
 function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
@@ -53,12 +54,9 @@ interface AuthContextType extends AuthState {
   logout: () => void;
 }
 
-interface AuthProviderProps {
-  children: ReactNode;
-}
-
-export function AuthProvider({ children }: AuthProviderProps) {
+export function AuthProvider( children : React.ReactNode) {
   const [state, dispatch] = useReducer(authReducer, initialState);
+  const router = useRouter();
 
   useEffect(() => {
     const token = getAuthToken();
@@ -69,7 +67,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const fetchUser = async (token: string) => {
     try {
-      const response = await axios.get<{ user: User; role: Role }>('/api/user', {
+      const response = await axios.get<{ user: User; }>('#', {
         headers: { Authorization: `Bearer ${token}` },
       });
       dispatch({ type: 'SET_USER', payload: response.data });
@@ -79,14 +77,15 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   };
 
-  const login = async (username: string, password: string) => {
+  const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post<LoginResponse>('/api/login', { username, password });
+      const response = await axios.post<LoginResponse>('#', { email, password });
       setAuthToken(response.data.token);
       dispatch({ 
         type: 'LOGIN_SUCCESS', 
         payload: response.data
       });
+        router.push('/');
     } catch (error) {
       dispatch({ type: 'LOGIN_FAILURE', payload: (error as Error).message });
     }
@@ -95,6 +94,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const logout = () => {
     removeAuthToken();
     dispatch({ type: 'LOGOUT' });
+    router.push('/login');
   };
 
   const value: AuthContextType = {
