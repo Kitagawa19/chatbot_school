@@ -37,7 +37,7 @@ const ChatComponent: React.FC = () => {
         setMessage('');
 
         try {
-            const response = await fetch('/api/messages', {
+            const response = await fetch('#', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
