@@ -1,99 +1,91 @@
 'use client';
 
-import React, { useEffect, useContext, useReducer, createContext } from 'react';
+import React, { createContext, useContext, useEffect, useReducer } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import Cookies from 'js-cookie';
-
-interface AuthState {
-    user: User | null;
-    token: string | null;
-    loading: boolean;
-    error: string | null;
-}
 
 interface User {
     id: string;
     email: string;
     username: string;
-    roles: string;
+    roles: string[];
 }
 
-const initState: AuthState = {
+interface AuthState {
+    user: User | null;
+    loading: boolean;
+    error: string | null;
+}
+
+type AuthAction =
+    | { type: 'LOGIN_START' }
+    | { type: 'LOGIN_SUCCESS'; payload: User }
+    | { type: 'LOGIN_FAILURE'; payload: string }
+    | { type: 'LOGOUT' };
+
+interface AuthContextType extends AuthState {
+    login: (email: string, password: string) => Promise<void>;
+    logout: () => void;
+}
+
+const authReducer = (state: AuthState, action: AuthAction): AuthState => {
+    switch (action.type) {
+        case 'LOGIN_START':
+            return { ...state, loading: true, error: null };
+        case 'LOGIN_SUCCESS':
+            return { ...state, user: action.payload, loading: false, error: null };
+        case 'LOGIN_FAILURE':
+            return { ...state, user: null, loading: false, error: action.payload };
+        case 'LOGOUT':
+            return { ...state, user: null, loading: false, error: null };
+        default:
+            return state;
+    }
+};
+
+const initialState: AuthState = {
     user: null,
-    token: null,
     loading: false,
     error: null,
 };
 
-type Action =
-    | { type: 'LOGIN_START' }
-    | { type: 'LOGOUT' }
-    | { type: 'LOGIN_SUCCESS'; payload: { user: User, token: string } }
-    | { type: 'LOGIN_FAILED'; payload: string }; // error message in payload
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-function authReducer(state: AuthState, action: Action): AuthState {
-    switch (action.type) {
-        case 'LOGIN_START':
-            return {
-                ...state,
-                loading: true,
-                error: null
-            };
-        case 'LOGOUT':
-            return {
-                ...state,
-                user: null,
-                token: null
-            };
-        case 'LOGIN_SUCCESS':
-            return {
-                ...state,
-                user: action.payload.user,
-                token: action.payload.token,
-                loading: false,
-                error: null
-            };
-        case 'LOGIN_FAILED':
-            return {
-                ...state,
-                loading: false,
-                error: action.payload
-            };
-        default:
-            return state;
-    }
-}
-
-interface AuthStateProps {
-    user: User | null;
-    login: (email: string, password: string) => void;
-    logout: () => void;
-}
-
-const AuthContext = createContext<AuthStateProps | undefined>(undefined);
-
-export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-    const [state, dispatch] = useReducer(authReducer, initState);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+    const [state, dispatch] = useReducer(authReducer, initialState);
     const router = useRouter();
+
+    useEffect(() => {
+        const token = Cookies.get('token');
+        if (token) {
+            fetchUser(token);
+        }
+    }, []);
+
+    const fetchUser = async (token: string) => {
+        dispatch({ type: 'LOGIN_START' });
+        try {
+            const response = await axios.get('/api/user', {
+                headers: { Authorization: `Bearer ${token}` }
+            });
+            dispatch({ type: 'LOGIN_SUCCESS', payload: response.data.user });
+        } catch (err) {
+            dispatch({ type: 'LOGIN_FAILURE', payload: 'Failed to fetch user data' });
+        }
+    };
 
     const login = async (email: string, password: string) => {
         dispatch({ type: 'LOGIN_START' });
         try {
-            const response = await axios.post('/api/token', {
-                email,
-                password
-            }, {
+            const response = await axios.post('/api/token', { email, password }, {
                 withCredentials: true,
-                headers: {
-                    'Content-Type': 'application/json'
-                }
+                headers: { 'Content-Type': 'application/json' }
             });
             const { user, token } = response.data;
             Cookies.set('token', token, { expires: 1 / 6 });
-            dispatch({ type: 'LOGIN_SUCCESS', payload: { user, token } });
+            dispatch({ type: 'LOGIN_SUCCESS', payload: user });
             
-            // ロールに応じたリダイレクト
             if (user.roles.includes('admin')) {
                 router.push('/admin');
             } else if (user.roles.includes('user')) {
@@ -102,7 +94,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 router.push('/guest');
             }
         } catch (err) {
-            dispatch({ type: 'LOGIN_FAILED', payload: 'Login failed!' });
+            dispatch({ type: 'LOGIN_FAILURE', payload: 'Login failed' });
         }
     };
 
@@ -112,32 +104,16 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         router.push('/');
     };
 
-    useEffect(() => {
-        const token = Cookies.get('token');
-        if (token) {
-            axios.get('/api/user', {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            }).then(response => {
-                dispatch({ type: 'LOGIN_SUCCESS', payload: { user: response.data.user, token } });
-            }).catch(err => {
-                dispatch({ type: 'LOGIN_FAILED', payload: 'Login failed!' });
-            });
-        }
-    }, []);
-
     return (
-        <AuthContext.Provider value={{ user: state.user, login, logout }}>
+        <AuthContext.Provider value={{ ...state, login, logout }}>
             {children}
         </AuthContext.Provider>
     );
 };
-
 export const useAuth = () => {
     const context = useContext(AuthContext);
     if (context === undefined) {
-        throw new Error('useAuth must be used within a AuthProvider');
+        throw new Error('useAuth must be used within an AuthProvider');
     }
     return context;
 };
