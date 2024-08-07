@@ -1,6 +1,6 @@
 'use client';
 import React, { useState, FormEvent } from 'react';
-import { useAuth } from '../Context/authContext';
+import { useAuth } from '@/Context/authContext';
 
 const LoginForm: React.FC = () => {
     const [email, setEmail] = useState<string>('');

@@ -1,7 +1,7 @@
 'use client';
 import React, { useState, FormEvent } from 'react';
 import useSWR from 'swr';
-import { useAuth } from '../Context/authContext';
+import { useAuth } from '@/Context/authContext';
 
 interface Message {
     id: string;

@@ -1,7 +1,7 @@
 import React from 'react';
-import { useAuth } from '../Context/authContext';
-import LoginForm from './LoginForm';
-import ChatComponent from './ChatComponent';
+import { useAuth } from '@/Context/authContext';
+import LoginForm from '@/Components/LoginForm';
+import ChatComponent from '@/Components/ChatComponent';
 
 const HomePage: React.FC = () => {
     const { user } = useAuth();

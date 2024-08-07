@@ -1,5 +1,5 @@
 import React from 'react';
-import useAuth from  './Context/authContext';
+import { useAuth } from  '@/Context/authContext';
 const RoleBasedDashboard = () => {
     const { user } = useAuth();
 
