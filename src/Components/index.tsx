@@ -1,46 +1,18 @@
 import React from 'react';
 import { useAuth } from  '@/Context/authContext';
-const RoleBasedDashboard = () => {
-    const { user } = useAuth();
+import { RoleBasedContent } from '@/components/RoleBasedContent';
 
-    if (!user) {
-        return <div>読み込み中...</div>;
-    }
+export const RoleBasedDashboard = () => {
+    const { user, logout } = useAuth();
 
-    if (user.roles.includes('admin')) {
-        return <AdminDashboard />;
-    } else if (user.roles.includes('user')) {
-        return <UserDashboard />;
-    } else {
-        return <GuestDashboard />;
-    }
-};
-
-const AdminDashboard = () => {
+    if (!user) return null; // or some loading state
+  
     return (
-        <div>
-            <h1>管理者ダッシュボード</h1>
-            {/* 管理者向けのコンテンツをここに追加 */}
-        </div>
+      <div>
+        <h1>Welcome, {user.name}</h1>
+        <p>Your roles are: {user.roles.join(', ')}</p>
+        <RoleBasedContent userRoles={user.roles} />
+        <button onClick={logout}>Logout</button>
+      </div>
     );
 };
-
-const UserDashboard = () => {
-    return (
-        <div>
-            <h1>ユーザーダッシュボード</h1>
-            {/* 一般ユーザー向けのコンテンツをここに追加 */}
-        </div>
-    );
-};
-
-const GuestDashboard = () => {
-    return (
-        <div>
-            <h1>ゲストダッシュボード</h1>
-            {/* ゲストユーザー向けのコンテンツをここに追加 */}
-        </div>
-    );
-};
-
-export default RoleBasedDashboard;

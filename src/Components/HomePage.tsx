@@ -11,7 +11,7 @@ const HomePage: React.FC = () => {
             <h1>Welcome to Our Chat App</h1>
             {user ? (
                 <>
-                    <p>Hello, {user.username}!</p>
+                    <p>Hello, {user.name}!</p>
                     <ChatComponent />
                 </>
             ) : (
