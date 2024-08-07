@@ -9,13 +9,20 @@ interface User {
     id: string;
     email: string;
     username: string;
-    roles: string;
 }
+
+type Role = 'admin' | 'student' | 'teacher';
 
 interface AuthState {
     user: User | null;
+    role: Role | null;
     loading: boolean;
     error: string | null;
+}
+interface LoginResponse {
+    user: User;
+    roles: Role;
+    token: string;
 }
 
 type AuthAction =
