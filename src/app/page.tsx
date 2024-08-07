@@ -1,10 +1,11 @@
-import Image from "next/image";
-import HomePage from "@/Components/HomePage";
+import React from 'react';
+import { HomePage } from '../Components/HomePage';
+import exp from 'constants';
 
-export default function Home() {
+const Page: React.FC = () => {
   return (
-    <div>
-      <HomePage />
-    </div>
+    <HomePage />
   );
-}
+};
+export default Page;
+

@@ -1,3 +1,4 @@
+'use client';
 import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import axios from 'axios';
 import { AuthState, User, Role, LoginResponse } from '@/types/authinfo';

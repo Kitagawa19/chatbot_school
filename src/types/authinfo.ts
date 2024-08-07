@@ -1,10 +1,8 @@
-export type Role = 'admin' | 'user' | 'guest';
-
 export interface User {
   id: string;
   name: string;
   email: string;
-  roles: Role[]; // 複数のロールを持つことができるように変更
+  roles: string; 
 }
 
 export interface AuthState {
