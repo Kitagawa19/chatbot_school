@@ -16,7 +16,7 @@ interface User {
     id: string;
     email: string;
     username: string;
-    roles: string[];
+    roles: string;
 }
 
 const initState: AuthState = {
