@@ -29,7 +29,10 @@ const ChatComponent: React.FC = () => {
             sender: user.id,
             timestamp: new Date().toISOString(),
         };
-        await mutate(prevMessages => [...(prevMessages || []), optimisticMessage], false);
+
+        const originalMessages = messages ? [...messages] : [];
+
+        mutate(async (prevMessages) => [...(prevMessages || []), optimisticMessage], false);
 
         setMessage('');
 
@@ -43,13 +46,13 @@ const ChatComponent: React.FC = () => {
             });
 
             if (response.ok) {
-                mutate('/api/messages',response,true);
+                mutate();
             } else {
-                mutate('/api/messages',response,false);
+                mutate(originalMessages, false);
                 console.error('Failed to send message');
             }
         } catch (error) {
-            mutate('/api/messages');
+            mutate(originalMessages, false);
             console.error('Failed to send message:', error);
         }
     };
