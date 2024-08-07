@@ -10,7 +10,7 @@ interface Message {
     timestamp: string;
 }
 
-const fetcher = (url: string): Promise<Message[]> => fetch(url).then((res) => res.json());
+const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 const ChatComponent: React.FC = () => {
     const { user } = useAuth();
@@ -23,6 +23,16 @@ const ChatComponent: React.FC = () => {
         e.preventDefault();
         if (!message.trim() || !user) return;
 
+        const optimisticMessage: Message = {
+            id: Date.now().toString(),
+            content: message,
+            sender: user.id,
+            timestamp: new Date().toISOString(),
+        };
+        await mutate(prevMessages => [...(prevMessages || []), optimisticMessage], false);
+
+        setMessage('');
+
         try {
             const response = await fetch('/api/messages', {
                 method: 'POST',
@@ -33,10 +43,13 @@ const ChatComponent: React.FC = () => {
             });
 
             if (response.ok) {
-                setMessage('');
-                mutate();
+                mutate('/api/messages',response,true);
+            } else {
+                mutate('/api/messages',response,false);
+                console.error('Failed to send message');
             }
         } catch (error) {
+            mutate('/api/messages');
             console.error('Failed to send message:', error);
         }
     };
@@ -45,24 +58,25 @@ const ChatComponent: React.FC = () => {
     if (!messages) return <div>Loading...</div>;
 
     return (
-        <div>
-            <div>
+        <div className="chat-container">
+            <div className="message-list">
                 {messages.map((msg: Message) => (
-                    <div key={msg.id}>
-                        <strong>{msg.sender}: </strong>
+                    <div key={msg.id} className={`message ${msg.sender === user?.id ? 'sent' : 'received'}`}>
+                        <strong>{msg.sender === user?.id ? 'You' : msg.sender}: </strong>
                         {msg.content}
                         <small>{new Date(msg.timestamp).toLocaleString()}</small>
                     </div>
                 ))}
             </div>
-            <form onSubmit={sendMessage}>
+            <form onSubmit={sendMessage} className="message-form">
                 <input
                     type="text"
                     value={message}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
                     placeholder="Type a message..."
+                    className="message-input"
                 />
-                <button type="submit">Send</button>
+                <button type="submit" className="send-button">Send</button>
             </form>
         </div>
     );
