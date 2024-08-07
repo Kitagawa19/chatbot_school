@@ -1,11 +1,17 @@
 'use client';
 import React, { createContext, useContext, useReducer, ReactNode, useEffect } from 'react';
 import axios from 'axios';
-import { AuthState, User, LoginResponse } from '@/types/authinfo';
+import {  User, LoginResponse } from '@/types/authinfo';
 import { setAuthToken, getAuthToken, removeAuthToken } from '@/utils/cookie';
 import { useRouter } from 'next/navigation';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+export interface AuthState {
+    user: User | null;
+    isAuthenticated: boolean;
+    error: string | null;
+  }
 
 const initialState: AuthState = {
     user: null,
@@ -50,11 +56,11 @@ function authReducer(state: AuthState, action: AuthAction): AuthState {
 }
 
 interface AuthContextType extends AuthState {
-  login: (username: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
 }
 
-export function AuthProvider( children : React.ReactNode) {
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
   const router = useRouter();
 
@@ -110,7 +116,7 @@ export function AuthProvider( children : React.ReactNode) {
   );
 }
 
-export function useAuth(): AuthContextType {
+export const useAuth=()=> {
   const context = useContext(AuthContext);
   if (context === undefined) {
     throw new Error('useAuth must be used within an AuthProvider');
