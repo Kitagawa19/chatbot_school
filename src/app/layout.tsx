@@ -16,11 +16,15 @@ type RootLayoutProps = {
 
 const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
   return (
-    <div className={inter.className}>
-      <AuthProvider>
-        {children}
-      </AuthProvider>
-    </div>
+    <html lang="en">
+      <body>
+        <div className={inter.className}>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </div>
+      </body>
+    </html>
   );
 };
 
