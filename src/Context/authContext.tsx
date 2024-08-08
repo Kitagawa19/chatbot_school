@@ -73,7 +73,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const fetchUser = async (token: string) => {
     try {
-      const response = await axios.get<{ user: User; }>('http://localhost:7071/user/', {
+      const response = await axios.get<{ user: User; }>('#', {
         headers: { Authorization: `Bearer ${token}` },
       });
       dispatch({ type: 'SET_USER', payload: response.data });
@@ -85,7 +85,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post<LoginResponse>('http://localhost:7071/user/', { email, password });
+      const response = await axios.post<LoginResponse>('#', { email, password });
       setAuthToken(response.data.token);
       dispatch({ 
         type: 'LOGIN_SUCCESS', 
