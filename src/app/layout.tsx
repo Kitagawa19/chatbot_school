@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import { AuthProvider } from "@/Context/authContext";
+import { AppRouterCacheProvider } from '@mui/material-nextjs/v13-appRouter';
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -16,11 +17,15 @@ type RootLayoutProps = {
 
 const RootLayout: React.FC<RootLayoutProps> = ({ children }) => {
   return (
-    <div className={inter.className}>
-      <AuthProvider>
-        {children}
-      </AuthProvider>
-    </div>
+    <html lang="en">
+      <body className={inter.className}>
+        <AppRouterCacheProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </AppRouterCacheProvider>
+      </body>
+    </html>
   );
 };
 

@@ -12,10 +12,10 @@ interface Message {
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
-const ChatComponent: React.FC = () => {
+export const ChatComponent: React.FC = () => {
     const { user } = useAuth();
     const [message, setMessage] = useState<string>('');
-    const { data: messages, error, mutate } = useSWR<Message[]>('/api/messages', fetcher, {
+    const { data: messages, error, mutate } = useSWR<Message[]>('#', fetcher, {
         refreshInterval: 1000,
     });
 
@@ -84,5 +84,3 @@ const ChatComponent: React.FC = () => {
         </div>
     );
 };
-
-export default ChatComponent;
