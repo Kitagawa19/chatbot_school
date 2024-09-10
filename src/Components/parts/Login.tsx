@@ -1,7 +1,8 @@
 'use client';
 import React, { useState, FormEvent } from 'react';
 import { useAuth } from '../../Context/authContext';
-import { Button, Container, Grid, TextField, Typography, InputAdornment, IconButton } from '@mui/material';
+import { Button, Container, Grid, TextField, Typography, InputAdornment, IconButton, Box } from '@mui/material';
+import Link from 'next/link';
 
 export const LoginForm: React.FC = () => {
     const [email, setEmail] = useState<string>('');
@@ -27,7 +28,7 @@ export const LoginForm: React.FC = () => {
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
-                            label="Email"
+                            label="メールアドレス"
                             variant="outlined"
                             type="email"
                             value={email}
@@ -38,7 +39,7 @@ export const LoginForm: React.FC = () => {
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
-                            label="Password"
+                            label="パスワード"
                             variant="outlined"
                             type={showPassword ? 'text' : 'password'}
                             value={password}
@@ -72,6 +73,13 @@ export const LoginForm: React.FC = () => {
                     </Grid>
                 </Grid>
             </form>
+            <Box mt={3} textAlign='center'>
+                <Typography variant='body2' component='p'>
+                    <Link href='/register'>
+                    アカウントをお持ちではないですか？登録はこちら
+                    </Link>
+                </Typography>
+            </Box>
         </Container>
     );
 };
