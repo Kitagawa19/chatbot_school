@@ -2,7 +2,8 @@
 import React, { useState, FormEvent } from 'react';
 import { Button, Container, Grid, TextField, Typography, InputAdornment, IconButton, Alert } from '@mui/material';
 import Snackbar from '@mui/material/Snackbar';
-import ClearIcon from "@mui/icons-material/Clear";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 
 
 
@@ -94,7 +95,7 @@ export const RegisterForm: React.FC = () => {
                         onMouseDown={handleMouseDownPassword}
                         edge='end'
                         >
-                        {showPassword ? <ClearIcon/> : <ClearIcon/>}
+                        {showPassword ? <VisibilityIcon/> : <VisibilityOffIcon/>}
                       </IconButton> 
                     </InputAdornment>
                   )

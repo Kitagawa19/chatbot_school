@@ -1,13 +1,16 @@
 'use client';
 import React, { useState, FormEvent } from 'react';
 import { useAuth } from '../../Context/authContext';
-import { Button, Container, Grid, TextField, Typography, InputAdornment, IconButton, Box } from '@mui/material';
-import Link from 'next/link';
+import { Button, Container, Grid, TextField, Typography, InputAdornment, IconButton, Box, Link, Snackbar, Paper,  } from '@mui/material';
+import { Visibility,VisibilityOff  } from '@mui/icons-material';
+
 
 export const LoginForm: React.FC = () => {
     const [email, setEmail] = useState<string>('');
     const [password, setPassword] = useState<string>('');
     const [showPassword, setShowPassword] = useState<boolean>(false);
+    const [tabvalue,setTabvalue] = useState<number>(0);
+    const [showSnackbar,setShowSnackbar] = useState<boolean>(false);
     const { login } = useAuth();
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -16,7 +19,9 @@ export const LoginForm: React.FC = () => {
     const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         await login(email, password);
+        setShowSnackbar(true);
     };
+
 
     return (
         <Container maxWidth="xs">
@@ -54,7 +59,7 @@ export const LoginForm: React.FC = () => {
                                             onMouseDown={handleMouseDownPassword}
                                             edge="end"
                                         >
-                                            {showPassword ? '🔓' : '🔒'}
+                                            {showPassword ? <Visibility/> : <VisibilityOff/>}
                                         </IconButton>
                                     </InputAdornment>
                                 )
@@ -74,9 +79,9 @@ export const LoginForm: React.FC = () => {
                 </Grid>
             </form>
             <Box mt={3} textAlign='center'>
-                <Typography variant='body2' component='p'>
-                    <Link href='/register'>
-                    アカウントをお持ちではないですか？登録はこちら
+                <Typography  color='primary'>
+                    <Link href='/Register' underline='hover'>
+                    {'アカウントをお持ちではないですか？登録はこちら'}
                     </Link>
                 </Typography>
             </Box>
