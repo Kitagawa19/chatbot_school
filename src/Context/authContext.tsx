@@ -20,11 +20,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const router = useRouter();
 
   // ログイン関数
-  const login = async (username: string, password: string) => {
+  const login = async (email: string, password: string) => {
     try {
       // FastAPIにPOSTリクエストを送信して、トークンを取得
       const response = await axios.post("http://localhost:7071/api/login/", {
-        username,
+        email,
         password,
       }, {
         withCredentials: true, 
@@ -37,7 +37,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       setToken(accessToken);  // トークンを状態にセット
       localStorage.setItem('authToken', accessToken);  // トークンをlocalStorageに保存
       setError(null);  // エラーをクリア
-      router.push('/Chat');  // ログイン成功後にダッシュボードに遷移
+      router.push('/Chat');  
     } catch (err) {
       setError('Invalid username or password');  // バックエンドからのエラーメッセージに対応
       console.error("Login failed:", err);
@@ -69,3 +69,5 @@ export const useAuth = () => {
   }
   return context;
 };
+
+

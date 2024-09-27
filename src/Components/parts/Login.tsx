@@ -19,7 +19,7 @@ export const LoginForm: React.FC = () => {
     const handleClickShowPassword = () => setShowPassword((show) => !show);
     const handleMouseDownPassword = (e: React.MouseEvent<HTMLButtonElement>) => e.preventDefault();
 
-    const handleSubmit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         console.log("Form submitted, calling login function...");
         try {
@@ -96,7 +96,7 @@ export const LoginForm: React.FC = () => {
                         </Grid>
                         <Grid item xs={12}>
                             <Button
-                                onClick={(e: React.MouseEvent<HTMLButtonElement>) => handleSubmit(e)} 
+                                type="submit"
                                 fullWidth
                                 variant="contained"
                                 color="primary"
