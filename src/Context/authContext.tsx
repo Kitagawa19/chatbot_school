@@ -4,12 +4,18 @@ import React, { createContext, useContext, useState, ReactNode } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 
+interface User {
+  id: string;
+  email: string;
+}
+
 // コンテキストの型定義
 interface AuthContextType {
-  login: (username: string, password: string) => Promise<void>;
+  login: (email: string, password: string) => Promise<void>;
   logout: () => void;
   token: string | null;
   error: string | null;
+  user: User | null; 
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -17,6 +23,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
 
   // ログイン関数
@@ -27,14 +34,14 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         email,
         password,
       }, {
-        withCredentials: true, 
         headers: {
           "Content-Type": "application/json",
         },
       });
-
       const accessToken = response.data.access_token;
-      setToken(accessToken);  // トークンを状態にセット
+      const userData: User = response.data.user;
+      setToken(accessToken); 
+      setUser(userData); 
       localStorage.setItem('authToken', accessToken);  // トークンをlocalStorageに保存
       setError(null);  // エラーをクリア
       router.push('/Chat');  
@@ -47,6 +54,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // ログアウト関数
   const logout = () => {
     setToken(null);
+    setUser(null);
     localStorage.removeItem('authToken');  // ローカルストレージからトークンを削除
     router.push('/login');  // ログアウト後にログインページに遷移
   };
@@ -56,6 +64,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     logout,
     token,
     error,
+    user,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

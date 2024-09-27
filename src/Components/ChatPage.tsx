@@ -10,6 +10,7 @@ interface Message {
     timestamp: string;
 }
 
+
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export const ChatComponent: React.FC = () => {
