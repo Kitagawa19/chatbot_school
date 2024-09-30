@@ -1,5 +1,5 @@
 'use client';
-import React, { useState, FormEvent } from 'react';
+import React, { useState, useEffect, FormEvent } from 'react';
 import useSWR from 'swr';
 import { useAuth } from '../Context/authContext';
 
@@ -10,19 +10,45 @@ interface Message {
     timestamp: string;
 }
 
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = (url: string, token: string | null) => {
+    return fetch(url, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`, 
+        },
+    }).then((res) => {
+        if (!res.ok) {
+            throw new Error('Failed to fetch');
+        }
+        return res.json();
+    });
+};
 
 export const ChatComponent: React.FC = () => {
-    const { user } = useAuth();
+    const { token, user } = useAuth();
     const [message, setMessage] = useState<string>('');
-    const { data: messages, error, mutate } = useSWR<Message[]>('#', fetcher, {
-        refreshInterval: 1000,
-    });
+    const [authToken, setAuthToken] = useState<string | null>(null);  // トークンを状態に持たせる
+
+    // useEffectでトークンを取得して設定する
+    useEffect(() => {
+        if (token) {
+            setAuthToken(token);
+        }
+    }, [token]);
+
+    // トークンが存在する場合にのみSWRを実行
+    const { data: messages = [], error, mutate } = useSWR<Message[]>(
+        authToken ? ['http://localhost:7071/api/app/view/chat/', authToken] : null, 
+        ([url, token]) => fetcher(url, token as string), 
+        {
+            refreshInterval: 1000,
+        }
+    );
 
     const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        if (!message.trim() || !user) return;
+        if (!message.trim() || !user || !authToken) return;
 
         const optimisticMessage: Message = {
             id: Date.now().toString(),
@@ -33,15 +59,16 @@ export const ChatComponent: React.FC = () => {
 
         const originalMessages = messages ? [...messages] : [];
 
-        mutate(async (prevMessages) => [...(prevMessages || []), optimisticMessage], false);
+        mutate([...messages, optimisticMessage], false);
 
         setMessage('');
 
         try {
-            const response = await fetch('#', {
+            const response = await fetch('http://localhost:7071/api/app/input/chat/', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${authToken}`,
                 },
                 body: JSON.stringify({ content: message, sender: user.id }),
             });
