@@ -28,9 +28,7 @@ const fetcher = (url: string, token: string | null) => {
 export const ChatComponent: React.FC = () => {
     const { token, user } = useAuth();
     const [message, setMessage] = useState<string>('');
-    const [authToken, setAuthToken] = useState<string | null>(null);  // トークンを状態に持たせる
-
-    // useEffectでトークンを取得して設定する
+    const [authToken, setAuthToken] = useState<string | null>(null);  
     useEffect(() => {
         if (token) {
             setAuthToken(token);
@@ -45,6 +43,7 @@ export const ChatComponent: React.FC = () => {
 
     const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
+        console.log('Sending message:', message);
         if (!message.trim() || !user || !authToken) return;
 
         const optimisticMessage: Message = {
@@ -98,6 +97,8 @@ export const ChatComponent: React.FC = () => {
             </div>
             <form onSubmit={sendMessage} className="message-form">
                 <input
+                    id='message-input'
+                    name='message'
                     type="text"
                     value={message}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}

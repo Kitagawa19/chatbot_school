@@ -12,8 +12,8 @@ export const LoginForm: React.FC = () => {
     const [password, setPassword] = useState<string>('');
     const [showPassword, setShowPassword] = useState<boolean>(false);
     const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
-    const [snackbarMessage, setSnackbarMessage] = useState<string>('');  // Snackbar用メッセージ
-    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');  // Snackbarのタイプ
+    const [snackbarMessage, setSnackbarMessage] = useState<string>('');  
+    const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');  
     const { login, error } = useAuth();  // エラーとlogin関数を取得
 
     const handleClickShowPassword = () => setShowPassword((show) => !show);
@@ -24,13 +24,13 @@ export const LoginForm: React.FC = () => {
         console.log("Form submitted, calling login function...");
         try {
             await login(email, password);
-            setSnackbarMessage('ログインに成功しました');  // 成功メッセージ
+            setSnackbarMessage('ログインに成功しました');  
             setSnackbarSeverity('success');
         } catch (err) {
-            setSnackbarMessage('ログインに失敗しました');  // 失敗メッセージ
+            setSnackbarMessage('ログインに失敗しました');  
             setSnackbarSeverity('error');
         } finally {
-            setShowSnackbar(true);  // スナックバーを表示
+            setShowSnackbar(true);  
         }
     };
 
@@ -115,8 +115,6 @@ export const LoginForm: React.FC = () => {
                     </Typography>
                 </Box>
             </Container>
-
-            {/* スナックバー */}
             <Snackbar
                 open={showSnackbar}
                 autoHideDuration={3000}
@@ -127,7 +125,7 @@ export const LoginForm: React.FC = () => {
                     severity={snackbarSeverity}
                     sx={{ width: '100%' }}
                 >
-                    {snackbarMessage}  {/* スナックバーのメッセージ表示 */}
+                    {snackbarMessage}  
                 </Alert>
             </Snackbar>
         </Box>
