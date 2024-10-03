@@ -9,7 +9,6 @@ interface User {
   email: string;
 }
 
-// コンテキストの型定義
 interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
@@ -29,7 +28,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // ログイン関数
   const login = async (email: string, password: string) => {
     try {
-      // FastAPIにPOSTリクエストを送信して、トークンを取得
       const response = await axios.post("http://localhost:7071/api/login/", {
         email,
         password,
@@ -42,21 +40,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       const userData: User = response.data.user;
       setToken(accessToken); 
       setUser(userData); 
-      localStorage.setItem('authToken', accessToken);  // トークンをlocalStorageに保存
-      setError(null);  // エラーをクリア
+      localStorage.setItem('authToken', accessToken);  
+      setError(null);  
       router.push('/Chat');  
     } catch (err) {
-      setError('Invalid username or password');  // バックエンドからのエラーメッセージに対応
+      setError('Invalid username or password');  
       console.error("Login failed:", err);
     }
   };
-
   // ログアウト関数
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('authToken');  // ローカルストレージからトークンを削除
-    router.push('/login');  // ログアウト後にログインページに遷移
+    localStorage.removeItem('authToken');  
+    router.push('/login');  
   };
 
   const value = {
@@ -69,7 +66,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
-
 // フックを使ってコンテキストを利用する
 export const useAuth = () => {
   const context = useContext(AuthContext);
