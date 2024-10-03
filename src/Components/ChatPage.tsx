@@ -2,6 +2,17 @@
 import React, { useState, useEffect, FormEvent } from 'react';
 import useSWR from 'swr';
 import { useAuth } from '../Context/authContext';
+import { 
+    Box, 
+    Container, 
+    TextField, 
+    Button, 
+    Typography, 
+    List, 
+    ListItem, 
+    ListItemText, 
+    Paper 
+} from '@mui/material';
 
 interface Message {
     id: string;
@@ -29,6 +40,7 @@ export const ChatComponent: React.FC = () => {
     const { token, user } = useAuth();
     const [message, setMessage] = useState<string>('');
     const [authToken, setAuthToken] = useState<string | null>(null);  
+
     useEffect(() => {
         if (token) {
             setAuthToken(token);
@@ -43,7 +55,6 @@ export const ChatComponent: React.FC = () => {
 
     const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        console.log('Sending message:', message);
         if (!message.trim() || !user || !authToken) return;
 
         const optimisticMessage: Message = {
@@ -81,32 +92,55 @@ export const ChatComponent: React.FC = () => {
         }
     };
 
-    if (error) return <div>Failed to load messages</div>;
-    if (!messages) return <div>Loading...</div>;
+    if (error) return <Typography color="error">Failed to load messages</Typography>;
+    if (!messages) return <Typography>Loading...</Typography>;
 
     return (
-        <div className="chat-container">
-            <div className="message-list">
-                {messages.map((msg: Message) => (
-                    <div key={msg.id} className={`message ${msg.sender === user?.id ? 'sent' : 'received'}`}>
-                        <strong>{msg.sender === user?.id ? 'You' : msg.sender}: </strong>
-                        {msg.content}
-                        <small>{new Date(msg.timestamp).toLocaleString()}</small>
-                    </div>
-                ))}
-            </div>
-            <form onSubmit={sendMessage} className="message-form">
-                <input
-                    id='message-input'
-                    name='message'
-                    type="text"
+        <Container maxWidth="sm" sx={{ height: '100vh', display: 'flex', flexDirection: 'column' }}>
+            {/* Message list area */}
+            <Box sx={{ flexGrow: 1, overflowY: 'auto', mb: 2 }}>
+                <List>
+                    {messages.map((msg: Message) => (
+                        <ListItem
+                            key={msg.id}
+                            sx={{ justifyContent: msg.sender === user?.id ? 'flex-end' : 'flex-start' }}
+                        >
+                            <Box sx={{ maxWidth: '75%' }}>
+                                <Paper
+                                    elevation={1}
+                                    sx={{
+                                        p: 1,
+                                        backgroundColor: msg.sender === user?.id ? '#e0f7fa' : '#fff',
+                                    }}
+                                >
+                                    <ListItemText
+                                        primary={msg.content}
+                                        secondary={new Date(msg.timestamp).toLocaleString()}
+                                        sx={{ wordWrap: 'break-word' }}
+                                    />
+                                </Paper>
+                            </Box>
+                        </ListItem>
+                    ))}
+                </List>
+            </Box>
+
+            {/* Input area - Fixed at the bottom */}
+            <Box component="form" onSubmit={sendMessage} sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                <TextField
+                    id="message-input"
+                    name="message"
+                    fullWidth
+                    variant="outlined"
+                    placeholder="Type a message..."
                     value={message}
                     onChange={(e: React.ChangeEvent<HTMLInputElement>) => setMessage(e.target.value)}
-                    placeholder="Type a message..."
-                    className="message-input"
+                    sx={{ mr: 2 }}
                 />
-                <button type="submit" className="send-button">Send</button>
-            </form>
-        </div>
+                <Button type="submit" variant="contained" color="primary">
+                    Send
+                </Button>
+            </Box>
+        </Container>
     );
 };
