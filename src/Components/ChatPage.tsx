@@ -41,9 +41,6 @@ export const ChatComponent: React.FC = () => {
     const { data: messages = [], error, mutate } = useSWR<Message[]>(
         authToken ? ['http://localhost:7071/api/app/view/chat/', authToken] : null, 
         ([url, token]) => fetcher(url, token as string), 
-        {
-            refreshInterval: 1000,
-        }
     );
 
     const sendMessage = async (e: FormEvent<HTMLFormElement>) => {
