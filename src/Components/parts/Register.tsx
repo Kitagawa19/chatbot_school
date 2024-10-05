@@ -1,47 +1,79 @@
 'use client';
 import React, { useState, FormEvent } from 'react';
-import { useAuth } from '../../Context/authContext';
 import {
   Button, Container, Grid, TextField, Typography, InputAdornment,
-  IconButton, Box, Link, Snackbar, Alert
+  IconButton, Alert, Box, Snackbar, Card,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
+import VisibilityIcon from '@mui/icons-material/Visibility';
+import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
+import PersonIcon from '@mui/icons-material/Person';
+import EmailIcon from '@mui/icons-material/Email';
+import LockIcon from '@mui/icons-material/Lock';
 
-export const LoginForm: React.FC = () => {
+export const RegisterForm: React.FC = () => {
+  const [name, setName] = useState<string>('');
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
   const [showPassword, setShowPassword] = useState<boolean>(false);
   const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
-  const [snackbarMessage, setSnackbarMessage] = useState<string>('');
-  const [snackbarSeverity, setSnackbarSeverity] = useState<'success' | 'error'>('success');
-  const { login, error } = useAuth();  // エラーとlogin関数を取得
+  const [alertMessage, setAlertMessage] = useState<string>('');
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
   const handleMouseDownPassword = (e: React.MouseEvent<HTMLButtonElement>) => e.preventDefault();
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("Form submitted, calling login function...");
     try {
-      await login(email, password);
-      setSnackbarMessage('ログインに成功しました');
-      setSnackbarSeverity('success');
+      const res = await fetch('http://localhost:7071/api/signup/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: name,
+          email: email,
+          password: password,
+          authority: "student"
+        })
+      });
+      if (res.ok) {
+        setShowSnackbar(true);
+        setAlertMessage('ユーザー登録に成功しました');
+      } else {
+        setShowSnackbar(true);
+        setAlertMessage('ユーザー登録に失敗しました');
+      }
     } catch (err) {
-      setSnackbarMessage('ログインに失敗しました');
-      setSnackbarSeverity('error');
-    } finally {
       setShowSnackbar(true);
+      setAlertMessage('エラーが発生しました');
     }
-  };
+  }
 
   const handleSnackbarClose = () => {
     setShowSnackbar(false);
-  };
+  }
 
   return (
     <Box sx={{ mt: 8, mb: 4 }}>
       <form onSubmit={handleSubmit}>
         <Grid container spacing={3}>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="名前"
+              variant="outlined"
+              value={name}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+              required
+              InputProps={{
+                startAdornment: (
+                  <InputAdornment position="start">
+                    <PersonIcon />
+                  </InputAdornment>
+                ),
+              }}
+            />
+          </Grid>
           <Grid item xs={12}>
             <TextField
               fullWidth
@@ -54,7 +86,7 @@ export const LoginForm: React.FC = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Email />
+                    <EmailIcon />
                   </InputAdornment>
                 ),
               }}
@@ -72,7 +104,7 @@ export const LoginForm: React.FC = () => {
               InputProps={{
                 startAdornment: (
                   <InputAdornment position="start">
-                    <Lock />
+                    <LockIcon />
                   </InputAdornment>
                 ),
                 endAdornment: (
@@ -83,7 +115,7 @@ export const LoginForm: React.FC = () => {
                       onMouseDown={handleMouseDownPassword}
                       edge="end"
                     >
-                      {showPassword ? <Visibility /> : <VisibilityOff />}
+                      {showPassword ? <VisibilityIcon /> : <VisibilityOffIcon />}
                     </IconButton>
                   </InputAdornment>
                 )
@@ -98,7 +130,7 @@ export const LoginForm: React.FC = () => {
               color="primary"
               size="large"
             >
-              ログイン
+              登録
             </Button>
           </Grid>
         </Grid>
@@ -109,13 +141,12 @@ export const LoginForm: React.FC = () => {
         onClose={handleSnackbarClose}
       >
         <Alert
-          onClose={handleSnackbarClose}
-          severity={snackbarSeverity}
-          sx={{ width: '100%' }}
+          onClick={handleSnackbarClose}
+          severity={alertMessage === 'ユーザー登録に成功しました' ? 'success' : 'error'}
         >
-          {snackbarMessage}
+          {alertMessage}
         </Alert>
       </Snackbar>
     </Box>
-  );
+  )
 };
