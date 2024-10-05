@@ -3,11 +3,8 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
+import { User } from '../types/user';
 
-interface User {
-  id: string;
-  email: string;
-}
 
 interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
