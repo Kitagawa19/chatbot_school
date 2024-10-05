@@ -1,8 +1,8 @@
 'use client';
 import React, { useState, FormEvent } from 'react';
-import { 
-  Button, Container, Grid, TextField, Typography, InputAdornment, 
-  IconButton, Alert, Box, Snackbar
+import {
+  Button, Container, Grid, TextField, Typography, InputAdornment,
+  IconButton, Alert, Box, Snackbar, Card, CardHeader
 } from '@mui/material';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
@@ -11,55 +11,61 @@ import EmailIcon from '@mui/icons-material/Email';
 import LockIcon from '@mui/icons-material/Lock';
 
 export const RegisterForm: React.FC = () => {
-    const [name, setName] = useState<string>('');
-    const [email, setEmail] = useState<string>('');
-    const [password, setPassword] = useState<string>('');
-    const [showPassword, setShowPassword] = useState<boolean>(false);
-    const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
-    const [alertMessage, setAlertMessage] = useState<string>('');    
+  const [name, setName] = useState<string>('');
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [showPassword, setShowPassword] = useState<boolean>(false);
+  const [showSnackbar, setShowSnackbar] = useState<boolean>(false);
+  const [alertMessage, setAlertMessage] = useState<string>('');
 
-    const handleClickShowPassword = () => setShowPassword((show) => !show);
-    const handleMouseDownPassword = (e: React.MouseEvent<HTMLButtonElement>) => e.preventDefault();
+  const handleClickShowPassword = () => setShowPassword((show) => !show);
+  const handleMouseDownPassword = (e: React.MouseEvent<HTMLButtonElement>) => e.preventDefault();
 
-    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-      e.preventDefault();
-      try {
-        const res = await fetch('http://localhost:7071/api/signup/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            username: name,
-            email: email,
-            password: password,
-            authority: "student"
-          })
-        });
-        if (res.ok) {
-          setShowSnackbar(true);
-          setAlertMessage('ユーザー登録に成功しました');
-        } else {
-          setShowSnackbar(true);
-          setAlertMessage('ユーザー登録に失敗しました');
-        }
-      } catch (err) {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    try {
+      const res = await fetch('http://localhost:7071/api/signup/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          username: name,
+          email: email,
+          password: password,
+          authority: "student"
+        })
+      });
+      if (res.ok) {
         setShowSnackbar(true);
-        setAlertMessage('エラーが発生しました');
+        setAlertMessage('ユーザー登録に成功しました');
+      } else {
+        setShowSnackbar(true);
+        setAlertMessage('ユーザー登録に失敗しました');
       }
+    } catch (err) {
+      setShowSnackbar(true);
+      setAlertMessage('エラーが発生しました');
     }
+  }
 
-    const handleSnackbarClose = () => {
-      setShowSnackbar(false);
-    }
+  const handleSnackbarClose = () => {
+    setShowSnackbar(false);
+  }
 
-    return (
-      <Container maxWidth="sm">
-        <Box 
-          sx={{ mt: 8, mb: 4 }}>
-          <Typography variant="h4" component="h1" align="center" gutterBottom>
-            ユーザー登録
-          </Typography>
+  return (
+    <Container maxWidth="sm">
+      <Box
+        sx={{ mt: 8, mb: 4 }}>
+        <Card>
+          <CardHeader>
+            <Box sx={{ color: 'primary.main' }}>…
+              <Typography variant="h4">Welcome!</Typography>
+            </Box>
+            <Typography variant="h4" component="h1" align="center" gutterBottom>
+              Chat App for students
+            </Typography>
+          </CardHeader>
           <form onSubmit={handleSubmit}>
             <Grid container spacing={3}>
               <Grid item xs={12}>
@@ -140,19 +146,20 @@ export const RegisterForm: React.FC = () => {
               </Grid>
             </Grid>
           </form>
-        </Box>
-        <Snackbar
-          open={showSnackbar}
-          autoHideDuration={3000}
-          onClose={handleSnackbarClose}
+        </Card>
+      </Box>
+      <Snackbar
+        open={showSnackbar}
+        autoHideDuration={3000}
+        onClose={handleSnackbarClose}
+      >
+        <Alert
+          onClick={handleSnackbarClose}
+          severity={alertMessage === 'ユーザー登録に成功しました' ? 'success' : 'error'}
         >
-          <Alert
-            onClick={handleSnackbarClose}
-            severity={alertMessage === 'ユーザー登録に成功しました' ? 'success' : 'error'}
-          >
-            {alertMessage}
-          </Alert>
-        </Snackbar>
-      </Container>
-    )
+          {alertMessage}
+        </Alert>
+      </Snackbar>
+    </Container>
+  )
 };
