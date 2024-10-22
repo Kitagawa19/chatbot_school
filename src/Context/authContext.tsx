@@ -3,13 +3,15 @@
 import React, { createContext, useContext, useState, ReactNode } from 'react';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
-import { User } from '../types/user';
 
+interface User {
+  id: string;
+  email: string;
+}
 
 interface AuthContextType {
   login: (email: string, password: string) => Promise<void>;
   logout: () => void;
-  token: string | null;
   error: string | null;
   user: User | null; 
 }
@@ -17,7 +19,6 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [token, setToken] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [user, setUser] = useState<User | null>(null);
   const router = useRouter();
@@ -25,44 +26,54 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // ログイン関数
   const login = async (email: string, password: string) => {
     try {
-      const response = await axios.post("http://localhost:7071/api/login/", {
-        email,
-        password,
-      }, {
-        headers: {
-          "Content-Type": "application/json",
+      const response = await axios.post(
+        "http://localhost:7071/api/login/",
+        {
+          email,
+          password,
         },
-      });
-      const accessToken = response.data.access_token;
+        {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true, // クッキーの送受信を有効にする
+        }
+      );
+
       const userData: User = response.data.user;
-      setToken(accessToken); 
-      setUser(userData); 
-      localStorage.setItem('authToken', accessToken);  
-      setError(null);  
-      router.push('/Chat');  
+      setUser(userData);
+      setError(null);
+      router.push('/Chat');
     } catch (err) {
-      setError('Invalid username or password');  
+      setError('Invalid username or password');
       console.error("Login failed:", err);
     }
   };
+
   // ログアウト関数
   const logout = () => {
-    setToken(null);
     setUser(null);
-    localStorage.removeItem('authToken');  
-    router.push('/login');  
+    axios.post("http://localhost:7071/api/logout/", {}, {
+      withCredentials: true, // クッキーを削除するために使用
+    })
+    .then(() => {
+      router.push('/login');
+    })
+    .catch((err) => {
+      console.error("Logout failed:", err);
+    });
   };
 
   const value = {
     login,
     logout,
-    token,
     error,
     user,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
+
 // フックを使ってコンテキストを利用する
 export const useAuth = () => {
   const context = useContext(AuthContext);
@@ -71,5 +82,3 @@ export const useAuth = () => {
   }
   return context;
 };
-
-
