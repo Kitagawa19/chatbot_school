@@ -27,16 +27,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const login = async (email: string, password: string) => {
     try {
       const response = await axios.post(
-        "http://localhost:7071/api/login/",
+        "http://localhost:7071/api/login",
         {
-          email,
-          password,
+          email: email,
+          password: password,
         },
         {
           headers: {
             "Content-Type": "application/json",
+            withCredentials: true, 
           },
-          withCredentials: true, // クッキーの送受信を有効にする
         }
       );
 
@@ -53,8 +53,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // ログアウト関数
   const logout = () => {
     setUser(null);
-    axios.post("http://localhost:7071/api/logout/", {}, {
-      withCredentials: true, // クッキーを削除するために使用
+    axios.post("http://localhost:7071/api/logout", {}, {
+      withCredentials: true,
     })
     .then(() => {
       router.push('/login');

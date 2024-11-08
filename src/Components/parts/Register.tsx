@@ -24,13 +24,13 @@ export const RegisterForm: React.FC = () => {
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      const res = await fetch('http://localhost:7071/api/signup/', {
+      const res = await fetch('http://localhost:7071/api/signup', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          username: name,
+          name: name,
           email: email,
           password: password,
           authority: "student"
